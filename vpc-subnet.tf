@@ -1,5 +1,4 @@
 # the  below resource will configure a VPC in aws
-
 resource "aws_vpc" "main" {
   cidr_block       = "10.0.0.0/16"
   instance_tenancy = "default"
