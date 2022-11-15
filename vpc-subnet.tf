@@ -133,7 +133,7 @@ resource "aws_route_table" "private-subnet-rt" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.ng.id
+    nat_gateway_id = aws_nat_gateway.ng.id
   }
 
 
