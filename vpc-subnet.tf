@@ -18,7 +18,7 @@ resource "aws_internet_gateway" "gw" {
   }
 }
 # EIP for NAT gateway
-resource "aws_eip" "ng" {
+resource "aws_eip" "eip" {
 vpc = true
 tags = {
     Name = "EIP for Personal prod gw NAT"
@@ -27,8 +27,8 @@ tags = {
 
 # NAT gateway for private subnets
 
-resource "aws_nat_gateway" "example" {
-  allocation_id = aws_eip.ng.id
+resource "aws_nat_gateway" "ng" {
+  allocation_id = aws_eip.eip.id
   subnet_id     = aws_subnet.public-subnet-1.id
 
   tags = {
@@ -99,6 +99,58 @@ availability_zone = "us-east-1c"
 
 # route table for pubic subnet
 
+resource "aws_route_table" "public-subnet-rt" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+
+
+  tags = {
+    Name = "personal-prod-public-subnet-rt"
+  }
+}
+
+resource "aws_route_table_association" "associate-public-subnet-1" {
+  subnet_id      = aws_subnet.public-subnet-1.id
+  route_table_id = aws_route_table.public-subnet-rt.id
+}
+resource "aws_route_table_association" "associate-public-subnet-2" {
+  subnet_id      = aws_subnet.public-subnet-2.id
+  route_table_id = aws_route_table.public-subnet-rt.id
+}
+resource "aws_route_table_association" "associate-public-subnet-3" {
+  subnet_id      = aws_subnet.public-subnet-3.id
+  route_table_id = aws_route_table.public-subnet-rt.id
+}
 
 # route table for private subnet
 
+resource "aws_route_table" "private-subnet-rt" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.ng.id
+  }
+
+
+  tags = {
+    Name = "personal-prod-private-subnet-rt"
+  }
+}
+
+resource "aws_route_table_association" "associate-private-subnet-1" {
+  subnet_id      = aws_subnet.private-subnet-1.id
+  route_table_id = aws_route_table.private-subnet-rt.id
+}
+resource "aws_route_table_association" "associate-private-subnet-2" {
+  subnet_id      = aws_subnet.private-subnet-2.id
+  route_table_id = aws_route_table.private-subnet-rt.id
+}
+resource "aws_route_table_association" "associate-private-subnet-3" {
+  subnet_id      = aws_subnet.private-subnet-3.id
+  route_table_id = aws_route_table.private-subnet-rt.id
+}
